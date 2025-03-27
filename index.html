@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopHub - Online Store</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1>ShopHub</h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search products...">
+                <button onclick="searchProducts()">Search</button>
+            </div>
+            <div class="nav-items">
+                <div class="wishlist hidden customer-only" id="wishlist-icon">
+                    <a href="#" style="color: white;" onclick="showPage('wishlist-page')">Wishlist</a>
+                     (<span id="wishlist-count">0</span>)
+                </div>
+                <div class="cart hidden customer-only" id="cart-icon">
+                    <a href="#" style="color: white;" onclick="showPage('cart-page')">Cart</a>                     (<span id="cart-count">0</span>)
+                </div>
+                <div class="orders" id="orders-btn">My Orders</div>
+                <div class="account" id="account-btn">Sign In</div>
+                <div class="logout hidden" id="logout-btn">Logout</div>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main-content">
+        <!-- Categories Section -->
+        <section class="categories">
+            <h2>Categories</h2>
+            <ul id="category-list">
+                <!-- Categories will be dynamically inserted here -->
+            </ul>
+            <div class="admin-controls hidden admin-only">
+                <h3>Admin Controls</h3>
+                <button onclick="showPage('admin-products')">Manage Products</button>
+                <button onclick="showPage('admin-categories')">Manage Categories</button>
+                <button onclick="showPage('admin-orders')">Manage Orders</button>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section class="products" id="products-container">
+            <!-- Products will be dynamically inserted here -->
+        </section>
+
+        <!-- Cart Page -->
+        <section id="cart-page" class="page hidden customer-only">
+            <h2>Shopping Cart</h2>
+            <div id="cart-items-page"></div>
+            <div class="cart-total">
+                <strong>Total: $<span id="cart-total-page">0</span></strong>
+            </div>
+            <button id="place-order-btn" onclick="placeOrder()">Place Order</button>
+        </section>
+
+        <!-- Wishlist Page -->
+        <section id="wishlist-page" class="page hidden customer-only">
+            <h2>My Wishlist</h2>
+            <div id="wishlist-items"></div>
+        </section>
+
+        <!-- Orders Page -->
+        <section id="orders-page" class="page hidden">
+            <h2>My Orders</h2>
+            <div id="orders-list"></div>
+        </section>
+
+        <!-- Admin Products Page -->
+        <section id="admin-products" class="page hidden admin-only">
+            <h2>Manage Products</h2>
+            <button onclick="showProductForm()">Add New Product</button>
+            <div id="product-form" class="admin-form hidden">
+                <h3 id="product-form-title">Add New Product</h3>
+                <form onsubmit="return handleProductSubmit(event)">
+                    <input type="hidden" id="product-id">
+                    <div class="form-group">
+                        <label for="product-name">Name:</label>
+                        <input type="text" id="product-name" required minlength="3">
+                        <span class="error" id="product-name-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price">Price:</label>
+                        <input type="number" id="product-price" required min="0" step="0.01">
+                        <span class="error" id="product-price-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-description">Description:</label>
+                        <textarea id="product-description" required minlength="10"></textarea>
+                        <span class="error" id="product-description-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-category">Category:</label>
+                        <select id="product-category" required>
+                            <!-- Categories will be dynamically inserted here -->
+                        </select>
+                        <span class="error" id="product-category-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-image">Image URL:</label>
+                        <input type="url" id="product-image" required>
+                        <span class="error" id="product-image-error"></span>
+                    </div>
+                    <button type="submit">Save Product</button>
+                    <button type="button" onclick="hideProductForm()">Cancel</button>
+                </form>
+            </div>
+            <div id="admin-products-list"></div>
+        </section>
+
+        <!-- Admin Categories Page -->
+        <section id="admin-categories" class="page hidden admin-only">
+            <h2>Manage Categories</h2>
+            <button onclick="showCategoryForm()">Add New Category</button>
+            <div id="category-form" class="admin-form hidden">
+                <h3 id="category-form-title">Add New Category</h3>
+                <form onsubmit="return handleCategorySubmit(event)">
+                    <input type="hidden" id="category-id">
+                    <div class="form-group">
+                        <label for="category-name">Name:</label>
+                        <input type="text" id="category-name" required minlength="3">
+                        <span class="error" id="category-name-error"></span>
+                    </div>
+                    <button type="submit">Save Category</button>
+                    <button type="button" onclick="hideCategoryForm()">Cancel</button>
+                </form>
+            </div>
+            <div id="admin-categories-list"></div>
+        </section>
+
+        <!-- Admin Orders Page -->
+        <section id="admin-orders" class="page hidden admin-only">
+            <h2>Manage Orders</h2>
+            <div id="admin-orders-list"></div>
+        </section>
+
+        <!-- Auth Forms -->
+        <section id="auth-page" class="page hidden">
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form">
+                <h2>Sign In</h2>
+                <form onsubmit="return handleLogin(event)">
+                    <div class="form-group">
+                        <label for="login-email">Email:</label>
+                        <input type="email" id="login-email" required>
+                        <span class="error" id="login-email-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password:</label>
+                        <input type="password" id="login-password" required minlength="6">
+                        <span class="error" id="login-password-error"></span>
+                    </div>
+                    <button type="submit">Sign In</button>
+                </form>
+                <p>Don't have an account? <span id="show-register">Register</span></p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form hidden">
+                <h2>Create Account</h2>
+                <form onsubmit="return handleRegister(event)">
+                    <div class="form-group">
+                        <label for="register-name">Full Name:</label>
+                        <input type="text" id="register-name" required minlength="3">
+                        <span class="error" id="register-name-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email:</label>
+                        <input type="email" id="register-email" required>
+                        <span class="error" id="register-email-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password:</label>
+                        <input type="password" id="register-password" required minlength="6">
+                        <span class="error" id="register-password-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm-password">Confirm Password:</label>
+                        <input type="password" id="register-confirm-password" required minlength="6">
+                        <span class="error" id="register-confirm-password-error"></span>
+                    </div>
+                    <button type="submit">Register</button>
+                </form>
+                <p>Already have an account? <span id="show-login">Sign In</span></p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Your trusted online shopping destination</p>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>Email: support@shophub.com</p>
+                <p>Phone: (555) 123-4567</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="main.js"></script>
+</body>
+</html>
